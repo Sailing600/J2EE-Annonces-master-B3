@@ -1,0 +1,208 @@
+<%@page import="java.util.List"%>
+<%@page import="fr.epsi.myEpsi.beans.Annonce"%>
+<%@page import="fr.epsi.myEpsi.beans.Status"%>
+<%@page import="fr.epsi.myEpsi.beans.User"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/material-components-web@0.11.1/dist/material-components-web.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<link href="${pageContext.request.contextPath}/CSS/app.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+
+<header class="mdc-toolbar">
+
+  <div class="mdc-toolbar__row">
+    <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
+      
+      <span class="mdc-toolbar__title">
+      	<a href="Annonces"><img alt="" src="${pageContext.request.contextPath}/IMG/logo.png" class="helper logo"></a>
+     	
+           <%  User connected = (User) request.getAttribute("user"); %>
+			Bienvenue : <% out.println(connected.getId()); %>
+      </span>
+
+    </section>
+     <section class="mdc-toolbar__section mdc-toolbar__section--align-right">
+     
+     	<%
+			if(connected.getAdministrator()){
+		%>
+		<a class="mdc-button title-button" href='Users'>Gérez les utilisateurs</a>
+		<% } %>
+     	<a class="mdc-button title-button" href='Logout'>DECONNEXION</a>
+     </section>
+  </div>
+
+</header>
+	
+	<div class="messagesList">
+
+	 <% 
+ 	List<Annonce> annonces = (List<Annonce>) request.getAttribute("annonces");
+	for(Annonce annonce : annonces){
+		%> 
+		
+		
+	<div class="mdc-card card-message">
+	  <section class="mdc-card__primary">
+	    <div class="tooltip">
+	     <span class="tooltiptext">
+	     <%
+	     	String color = "#212121";
+			try{
+		     	if(annonce.getAuthor().getId().equals(connected.getId())){
+		     		out.println("posté par vous");
+		     		color = "green";
+		     	}else if (annonce.getAuthor().getAdministrator()){
+		    			out.println("posté par l'administrateur");
+		    			color = "red";
+		     	}else{
+		     		out.println("posté par ".concat(annonce.getAuthor().getId()));
+		     		color = "orange";
+		     	}
+			} catch (NullPointerException e) {
+				out.println("posté par un utilisateur anonyme");
+				color = "orange";
+			}
+	     %>
+	     </span>	
+	    <h1 class="mdc-card__title mdc-card__title--large">
+	    <i class="material-icons" style="color:<%out.print(color); %>"
+		   aria-label="User" tabindex="0">
+		  face
+		</i>
+	    <% 
+	   		 out.println( annonce.getId() + " - " + annonce.getTitle());
+		%> 
+	    </h1>
+		</div>
+	    <h2 class="mdc-card__subtitle">
+	    <% 
+			out.println("<br>date : " + annonce.getCreationDate());
+			out.println("<br>status : " + annonce.getStatus());
+		%> 
+	    </h2>
+	  </section>
+	  <section class="mdc-card__supporting-text">
+	  	<% 
+			out.println(annonce.getContent());
+		%>
+		<br>
+		<%
+			out.println("<br>status : " + annonce.getStatus());
+		%>
+		<br> <%
+			if(connected.getAdministrator() || connected.getId() == annonce.getAuthor().getId()){
+		%><a href='Annonce?id=<% out.println(annonce.getId()); %>'>Voir d'avantage</a> 
+		<%
+			} %>
+	  </section>
+	</div>
+		
+<%
+		}
+%> 
+		</div>	
+		
+		
+<aside id="newMessage"
+  style="visibility:hidden"
+  class="mdc-dialog"
+  role="alertdialog"
+  aria-labelledby="my-mdc-dialog-label"
+  aria-describedby="my-mdc-dialog-description">
+<form action="Message" method="post">
+  <div class="mdc-dialog__surface">
+
+    <section id="my-mdc-dialog-description" class="mdc-dialog__body">
+      
+      <h1>Ajouter une annonce</h1>
+      
+	<div class="mdc-textfield">
+	  <input type="text" name="title" class="mdc-textfield__input" placeholder="Titre">
+	</div>
+	
+	<div class="mdc-textfield">
+	  <input type="textarea" name="content" class="mdc-textfield__input" placeholder="Contenu">
+	</div>
+		
+ 
+   
+   <select class="mdc-select" placeholder="statut" name="status">
+   
+   <% 
+   List<Status> statusList = (List<Status>) request.getAttribute("status");
+   for(Status status : statusList){ 
+		out.println("<option>" + status.toString() + "</option>");
+   }%>
+   </select>
+
+      
+    </section>
+    <footer class="mdc-dialog__footer">
+        <button type="submit" class="mdc-button mdc-dialog__footer__button mdc-dialog__footer__button--cancel" >Ajouter</button>
+    </footer>
+  </div>
+  <div class="mdc-dialog__backdrop"></div>
+</form>
+</aside>
+			
+			
+			
+<style>
+.app-fab--absolute.app-fab--absolute {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+}
+
+@media(min-width: 1024px) {
+   .app-fab--absolute.app-fab--absolute {
+    bottom: 3rem;
+    right: 5rem;
+  }
+}
+</style>
+<button id="newMessageButton" class="mdc-fab app-fab--absolute" aria-label="Edit">
+  <span class="mdc-fab__icon">
+    <svg width="24" height="24" viewBox="0 0 24 24">
+      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+    </svg>
+  </span>
+</button>
+			
+			
+<script>
+	
+	var dialog = new mdc.dialog.MDCDialog(document.querySelector('#newAnnonce'));
+
+	dialog.listen('MDCDialog:accept', function() {
+	  console.log('accepted');
+	})
+
+	dialog.listen('MDCDialog:cancel', function() {
+	  console.log('canceled');
+	})
+
+	document.querySelector('#newAnnonceButton').addEventListener('click', function (evt) {
+	  dialog.lastFocusedTarget = evt.target;
+	  dialog.show();
+	})
+	
+	
+	
+</script>	
+
+</body>
+</html>

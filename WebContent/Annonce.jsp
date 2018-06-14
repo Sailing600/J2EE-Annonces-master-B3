@@ -1,0 +1,90 @@
+<%@page import="java.util.List"%>
+<%@page import="fr.epsi.myEpsi.beans.Annonce"%>
+<%@page import="fr.epsi.myEpsi.beans.Status"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/material-components-web@0.11.1/dist/material-components-web.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="${pageContext.request.contextPath}/CSS/app.css" rel="stylesheet">
+<title>annonces</title>
+
+</head>
+<body>
+<header class="mdc-toolbar">
+
+  <div class="mdc-toolbar__row">
+    <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
+      
+      <span class="mdc-toolbar__title">
+      	<a href="annonces"><img alt="" src="${pageContext.request.contextPath}/IMG/logo.png" class="helper logo"></a>
+     	 Modifier cette annonce
+      </span>
+
+    </section>
+     <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
+     </section>
+  </div>
+
+</header>
+
+<br>
+ <% 
+ 	Annonce annonce = (Annonce) request.getAttribute("annonce");
+%>
+
+<div class="mdc-layout-grid">
+ <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+<div class="mdc-card">
+  <section class="mdc-card__primary">
+    <h1 class="mdc-card__title mdc-card__title--large"> <% 
+	   		 out.println(annonce.getTitle());
+		%></h1>
+    <h2 class="mdc-card__subtitle"><% out.println(annonce.getId()); %></h2>
+  </section>
+  <section class="mdc-card__supporting-text">
+
+	  <% 
+		%> <p> <% 
+			out.println(annonce.getContent());
+		%> </p> 
+		
+		<form action="annonce" method="post">
+   <input name="action" type="hidden" value="PUT"/>
+   <input name="id" type="hidden" value="<% out.print( annonce.getId()); %>"/>
+   <label>Status</label>
+   <select name="status">
+   <% 
+   List<Status> statusList = (List<Status>) request.getAttribute("status");
+   for(Status status : statusList){ 
+		out.println("<option>" + status.toString() + "</option>");
+   } %>
+   </select>
+    <input type="submit" value="Modifier">
+</form>
+
+
+<hr>
+
+  </section>
+    <section class="mdc-card__actions">
+  		<form action="annonce" method="post">
+			<input name="action" type="hidden" value="DELETE"/>
+			<input name="id" type="hidden" value="<% out.print( annonce.getId()); %>"/>
+			<input class="mdc-button mdc-button--compact mdc-card__action" type="submit" value="Supprimer ce post"/>
+		</form>
+
+  </section>
+</div>
+</div>
+</div>
+
+
+</body>
+</html>
